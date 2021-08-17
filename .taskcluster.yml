@@ -46,7 +46,7 @@ tasks:
         payload:
           maxRunTime: 3600
           command:
-            - /bin/bash '-c' "git clone ${repository} repo && cd repo && git config advice.detachedHead false && git checkout ${head_rev} && cargo test"
+            - ['/bin/bash', '-c', 'git clone ${repository} repo && cd repo && git config advice.detachedHead false && git checkout ${head_rev} && cargo test']
       - metadata:
           name: Test windows
           description: ''
