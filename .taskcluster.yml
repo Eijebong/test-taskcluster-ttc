@@ -11,56 +11,59 @@ tasks:
       $if: tasks_for == "github-pull-request"
       then: ${event.pull_request.head.repo.html_url}
       else: ${event.repository.html_url}
+    should_run:
+      $match:
+        (tasks_for == "github-push") || (tasks_for == "github-pull-request" && event["action"] in ["opened","reopened","synchronize"]):
   in:
-    $match:
-      (tasks_for == "github-push") || (tasks_for == "github-pull-request" && event["action"] in ["opened","reopened","synchronize"]):
-        - metadata:
-            name: Test Linux
-            description: ''
-            owner: ${event.sender.login}@users.noreply.github.com
-            source: ${event.repository.url}
-          taskQueueId: test/linux
-          deadline:
-            $fromNow: 1 day
-          payload:
-            maxRunTime: 3600
-            image: rust:latest
-            command:
-              - /bin/bash
-              - '-c'
-              - >-
-                git clone ${repository} repo && cd repo && git config
-                advice.detachedHead false && git checkout ${head_rev} && cargo
-                test
-        - metadata:
-            name: Test macos
-            description: ''
-            owner: ${event.sender.login}@users.noreply.github.com
-            source: ${event.repository.url}
-          taskQueueId: divvun/macos
-          deadline:
-            $fromNow: 1 day
-          payload:
-            maxRunTime: 3600
-            command:
-              - /bin/bash
-              - '-c'
-              - >-
-                git clone ${repository} repo && cd repo && git config
-                advice.detachedHead false && git checkout ${head_rev} && cargo
-                test
-        - metadata:
-            name: Test windows
-            description: ''
-            owner: ${event.sender.login}@users.noreply.github.com
-            source: ${event.repository.url}
-          taskQueueId: divvun/windows
-          deadline:
-            $fromNow: 1 day
-          payload:
-            maxRunTime: 3600
-            command:
-              - >-
-                git clone ${repository} repo && cd repo && git config
-                advice.detachedHead false && git checkout ${head_rev} && cargo
-                test
+    $if: should_run
+    then:
+      - metadata:
+          name: Test Linux
+          description: ''
+          owner: ${event.sender.login}@users.noreply.github.com
+          source: ${event.repository.url}
+        taskQueueId: test/linux
+        deadline:
+          $fromNow: 1 day
+        payload:
+          maxRunTime: 3600
+          image: rust:latest
+          command:
+            - /bin/bash
+            - '-c'
+            - >-
+              git clone ${repository} repo && cd repo && git config
+              advice.detachedHead false && git checkout ${head_rev} && cargo
+              test
+      - metadata:
+          name: Test macos
+          description: ''
+          owner: ${event.sender.login}@users.noreply.github.com
+          source: ${event.repository.url}
+        taskQueueId: divvun/macos
+        deadline:
+          $fromNow: 1 day
+        payload:
+          maxRunTime: 3600
+          command:
+            - /bin/bash
+            - '-c'
+            - >-
+              git clone ${repository} repo && cd repo && git config
+              advice.detachedHead false && git checkout ${head_rev} && cargo
+              test
+      - metadata:
+          name: Test windows
+          description: ''
+          owner: ${event.sender.login}@users.noreply.github.com
+          source: ${event.repository.url}
+        taskQueueId: divvun/windows
+        deadline:
+          $fromNow: 1 day
+        payload:
+          maxRunTime: 3600
+          command:
+            - >-
+              git clone ${repository} repo && cd repo && git config
+              advice.detachedHead false && git checkout ${head_rev} && cargo
+              test
